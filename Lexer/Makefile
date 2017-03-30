@@ -1,4 +1,4 @@
-INPUT ?= ./lexer_test.txt
+INPUT ?= ./test.txt
 
 # Typing "make" without arguments runs the Lexer with the default input
 also_run: tests
@@ -18,12 +18,12 @@ download:
 # Run our Lexer with INPUT as the input file
 # Usage: INPUT=<input_file> make run
 # 	By default "make run" will run
-#	with "lexer_test.txt", same as "make tests"
+#	with "test.txt", same as "make tests"
 run:
-	python3 our_lexer.py ${INPUT}
+	python3 parser.py ${INPUT}
 
 tests:
-	python3 our_lexer.py lexer_test.txt
+	python3 parser.py test.txt
 
 clean:
 	rm ply-3.8.tar.gz

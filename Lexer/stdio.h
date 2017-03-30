@@ -1,6 +1,6 @@
-#include "lexer_test.txt"
-#include "math.h"
-int main(){
-    double ab = 0.23
-    return ab+=2
+void writeString(char * kalimera){
+    double ab;
+    ab = 0.23;
+	printf("%s", kalimera);
 }
+
