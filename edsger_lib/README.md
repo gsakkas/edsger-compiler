@@ -1,8 +1,7 @@
 *** DISCLAIMER ***
 The functions mentioned in this README are NOT of our creation!
-******************
 
-To build : 
+To build: 
 >./libs.sh
 
 A file called 'lib.a' is generated
