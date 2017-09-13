@@ -1,5 +1,5 @@
 *** DISCLAIMER ***
-The files mentioned in this README are NOT of our creation!
+The functions mentioned in this README are NOT of our creation!
 ******************
 
 To build : 

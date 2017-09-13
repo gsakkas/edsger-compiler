@@ -1,9 +1,8 @@
-# edsger-compiler
+# Edsger Compiler
 A compiler for the Edsger programming language.
 
-*******************************************
-      # Installation of Edsger Compiler
-*******************************************
+
+## Installation of Edsger Compiler
 
 1) Use "sudo -H make" to create Edsger Compiler. This command will
    install all files and programs necessary for the compiler to run
@@ -18,9 +17,7 @@ A compiler for the Edsger programming language.
    the "sudo -H make" command should be executed again.
 
 
-*******************************************
-          # Usage of Edsger Compiler
-*******************************************
+## Usage of Edsger Compiler
 
 Run the compiler with the command "./edsc". You can use the following options:
 
@@ -58,9 +55,7 @@ Run the compiler with the command "./edsc". You can use the following options:
    optimized. The optimization used is LLVM's -O=3 level.
 
 
-*******************************************
-          # Edsger Compiler's files
-*******************************************
+## Edsger Compiler's files
 
 The Edsger Compiler comes with the following folders:
 
