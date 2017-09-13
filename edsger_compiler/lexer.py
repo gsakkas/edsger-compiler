@@ -128,9 +128,15 @@ t_LNOT = r'!'
 
 t_COLON = r':'
 
-t_CCONST = r'\'(.|(\\[ntr0\'"])|(\\x[0-9a-fA-F][0-9a-fA-F]))\''
+def t_CCONST (t):
+	r'\'(.|(\\[ntr0\'"])|(\\x[0-9a-fA-F][0-9a-fA-F]))\''
+	t.value = 'cchar ' + str(t.value)
+	return t
 
-t_SCONST = r'\"(.|(\\[ntr0\'"])|(\\x[0-9a-fA-F][0-9a-fA-F]))*\"'
+def t_SCONST(t):
+	r'\"(.|(\\[ntr0\'"])|(\\x[0-9a-fA-F][0-9a-fA-F]))*?\"' ####### HERE, SOLVED WITH ?
+	t.value = 'cstring ' + str(t.value)
+	return t
 
 t_LPAREN = r'\('
 
@@ -199,12 +205,12 @@ def t_COMMENTS(t):
 
 def t_FCONST(t):
 	r'((\d*\.\d+)([eE][+-]?\d+)?)|(\d+[eE][+-]?\d+)'
-	# t.value = float(t.value)
+	t.value = 'cdouble ' + str(t.value)
 	return t
 
 def t_ICONST(t):
 	r'\d+'
-	# t.value = int(t.value)
+	t.value = 'cint ' + str(t.value)
 	return t
 
 def t_ID(t):
@@ -236,32 +242,6 @@ def t_error(t):
 lexer = lex.lex()
 
 
-def my_lexer(arguments):
-	input_file_name = arguments
-	if not os.path.isfile(input_file_name):
-		print('Error: No such file or directory: "%s"!' % input_file_name)
-		sys.exit()
-	elif not os.access(input_file_name, os.R_OK):
-		print('Error: Can\'t open file or directory: "%s"!' % input_file_name)
-		sys.exit()
-	else:
-		fin = open(input_file_name, 'r')
-		data = fin.read()
-		fin.close()
-
-	lexer = lex.lex()
-
-	included[input_file_name] = '1'
-	lexer.input(data)
-
-	# Tokenize
-	while True:
-		tok = lexer.token()
-		if not tok:
-			break  # No more input
-		token_list.append(tok)
-
-
 def our_lexer(arguments):
 	input_file_name = arguments
 	if not os.path.isfile(input_file_name):
@@ -285,4 +265,4 @@ def our_lexer(arguments):
 		tok = lexer.token()
 		if not tok:
 			break  # No more input
-		print(tok)
+		token_list.append(tok)

@@ -1,5 +1,5 @@
 ******************************************
-Installation of PLY and running the Lexer
+# Installation of PLY and running the Lexer
 ******************************************
 
 

@@ -1,0 +1,24 @@
+#include "stdio.h"
+
+int **a[2];
+int main () {
+	int i,j, n, m, k;
+	
+	n=10;
+	m=2;
+	k = 1;
+	a[1] = new int*[n];
+	for(i=0; i<n; i++)
+    	a[1][i] = new int [m];
+    	
+	for(i=0; i<n; i++)
+    	for(j=0; j<m; j++)
+    	    a[1][i][j] = i*m+j;
+    	    
+    for(i=0; i<n; i++)
+    	for(j=0; j<m; j++)
+            writeInteger(a[1][i][j]);
+    	
+	return 1;
+}
+
