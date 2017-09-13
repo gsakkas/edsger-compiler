@@ -1,3 +1,7 @@
+*** DISCLAIMER ***
+The files mentioned in this README are NOT of our creation!
+******************
+
 To build : 
 >./libs.sh
 
