@@ -2,7 +2,7 @@
 .PHONY: all clean distclean
 
 # Install the compiler (should be  superuser for this, e.g. "sudo -H make")
-all: install_llvmlite make_libs install_numpy install_ply make_comp check_install
+all: install_llvmlite make_libs install_numpy update_pre install_ply make_comp check_install
 
 # Install llvmlite
 install_llvmlite: install_pip install_pre
@@ -28,6 +28,14 @@ install_pre:
 	pip install ruamel.yaml
 	apt-get install zlib1g-dev lib32z1-dev
 
+# Update some prerequisites for llvmlite
+update_pre:
+	pip install --upgrade enum34
+	pip install --upgrade pycosat
+	pip install --upgrade pyyaml
+	pip install --upgrade requests
+	pip install --upgrade ruamel.yaml
+
 # Make the compiler libraries
 make_libs:
 	apt-get install nasm
@@ -36,6 +44,7 @@ make_libs:
 # Install NumPy
 install_numpy:
 	pip install numpy
+	pip install --upgrade numpy
 
 # Install the PLY library
 install_ply: unzip_ply
