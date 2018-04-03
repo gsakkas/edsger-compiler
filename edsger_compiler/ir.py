@@ -234,13 +234,16 @@ class LLVMCodeGenerator(object):
             size = self.builder.mul(int16(size), elems, 'multmp')
         else:
             size = int16(size)
-        if not self.module.get_global('__new'):
+        try: 
+            func_new = self.module.get_global('__new')
+        except:
             func_ty = ir.FunctionType(address_type, tuple([int16]))
             func_new = ir.Function(self.module, func_ty, '__new')
-        func_new = self.module.get_global('__new')
         address = self.builder.call(func_new, [size])
 
-        if not self.module.get_global('_init_mem_nodes'):
+        try:
+            self.module.get_global('_init_mem_nodes')
+        except:
             func_ty = ir.FunctionType(int16, ())
             func = ir.Function(self.module, func_ty, '_init_mem_nodes')
             self.struct_size = self.builder.call(func, [])
@@ -248,10 +251,11 @@ class LLVMCodeGenerator(object):
 
         struct_addr = self.builder.call(func_new, [self.struct_size])
         stack_point = self.builder.gep(address, [int16(0)])
-        if not self.module.get_global('_do_new'):
+        try:
+            func = self.module.get_global('_do_new')
+        except:
             func_ty = ir.FunctionType(void, tuple([address.type, address_type]))
             func = ir.Function(self.module, func_ty, '_do_new')
-        func = self.module.get_global('_do_new')
         self.builder.call(func, [address, struct_addr])
 
         point_type = childs[0].leaf
@@ -265,23 +269,27 @@ class LLVMCodeGenerator(object):
     def _codegen_delete(self, node, func_symtab):
         childs = node.children
 
-        if not self.module.get_global('_init_mem_nodes'):
+        try:
+            self.module.get_global('_init_mem_nodes')
+        except:
             func_ty = ir.FunctionType(int16, ())
             func = ir.Function(self.module, func_ty, '_init_mem_nodes')
             self.struct_size = self.builder.call(func, [])
 
         stack_point = self._find_addr(childs[0], func_symtab)
         stack_point = self.builder.load(stack_point)
-        if not self.module.get_global('_do_delete'):
+        try:
+            func = self.module.get_global('_do_delete')
+        except:
             func_ty = ir.FunctionType(void, tuple([stack_point.type]))
             func = ir.Function(self.module, func_ty, '_do_delete')
-        func = self.module.get_global('_do_delete')
         self.builder.call(func, [stack_point])
 
-        if not self.module.get_global('__delete'):
+        try:
+            func = self.module.get_global('__delete')
+        except:
             func_ty = ir.FunctionType(pointer(int16), ())
             func = ir.Function(self.module, func_ty, '__delete')
-        func = self.module.get_global('__delete')
         address = self.builder.call(func, [])
 
         if 'array' in childs[0].leaf:
@@ -322,9 +330,9 @@ class LLVMCodeGenerator(object):
             var_type = var_type[:-1]
             var_typ = pointer(var_typ)
 
-        if self.module.get_global(funcname) != None:
+        try:
             func = self.module.get_global(funcname)
-        else:
+        except:
             func_ty = ir.FunctionType(var_typ, tuple(args))
             func = ir.Function(self.module, func_ty, funcname)
 
@@ -372,9 +380,9 @@ class LLVMCodeGenerator(object):
             var_type = var_type[:-1]
             var_typ = pointer(var_typ)
 
-        if self.module.get_global(funcname) != None:
+        try:
             func = self.module.get_global(funcname)
-        else:
+        except:
             func_ty = ir.FunctionType(var_typ, tuple(args))
             func = ir.Function(self.module, func_ty, funcname)
 
@@ -707,7 +715,11 @@ class LLVMCodeGenerator(object):
 
 
     def _codegen_function_call(self, node, func_symtab):
-        callee_func = self.module.get_global(node.leaf)
+        try:
+            callee_func = self.module.get_global(node.leaf)
+        except:
+            print("{0}:Error: function {1} is not defined".format(node.lineno, node.leaf))
+            exit(42)
         call_args = [self._codegen(arg, func_symtab) for arg in node.children[0].children]
         if node.leaf in self.funs:
             for i in self.funs[node.leaf]:
@@ -838,24 +850,30 @@ class LLVMCodeGenerator(object):
             if node.leaf in func_symtab:
                 var_addr = func_symtab[node.leaf]
             else:
-                var_addr = self.module.get_global(node.leaf)
+                try:
+                    var_addr = self.module.get_global(node.leaf)
+                except:
+                    print("{0}:Error: array {1} is not defined".format(node.lineno, node.leaf))
+                    exit(42)
 
         elif node.type == 'array':
             elem = self._codegen(node.children[1].children[0], func_symtab)
 
             if node.children[0].leaf in func_symtab:
                 array = func_symtab[node.children[0].leaf]
-            elif self.module.get_global(node.children[0].leaf):
-                array = self.module.get_global(node.children[0].leaf)
-                if '[' in str(array.type) and 'constant' in str(dir(elem)):
-                    return (array, int(elem.constant))
-                elif '[' in str(array.type):
-                    return self.builder.gep(array, [int16(0), elem])
-                else:
-                    array =  self.builder.load(array)
-                    return self.builder.gep(array, [elem])
             else:
-                array = self._codegen(node.children[0], func_symtab)
+                try:
+                    array = self.module.get_global(node.children[0].leaf)
+                except:
+                    array = self._codegen(node.children[0], func_symtab)
+                else:
+                    if '[' in str(array.type) and 'constant' in str(dir(elem)):
+                        return (array, int(elem.constant))
+                    elif '[' in str(array.type):
+                        return self.builder.gep(array, [int16(0), elem])
+                    else:
+                        array =  self.builder.load(array)
+                        return self.builder.gep(array, [elem])
 
             if 'value' not in str(array.operands) and array.opname != 'load' and array.opname != 'extractvalue':
                 array = self.builder.load(array)
@@ -1119,15 +1137,15 @@ class LLVMCodeGenerator(object):
             array = func_symtab[node.children[0].leaf]
         else:
             array = self._codegen(node.children[0], func_symtab)
-        if self.module.get_global(node.children[0].leaf):
+        try:
+            array_temporary = self.module.get_global(node.children[0].leaf)
             if '[' in str(array.type):
-                array = self.module.get_global(node.children[0].leaf)
-                array = self.builder.gep(array, [int16(0), elem])
+                array = self.builder.gep(array_temporary, [int16(0), elem])
                 elem = self.builder.load(array)
             else:
                 array = self.builder.gep(array, [elem])
                 elem =  self.builder.load(array)
-        else:
+        except:
             if 'value' not in str(array.operands) and array.opname != 'load' and array.opname != 'extractvalue':
                 array = self.builder.load(array)
             elem = self.builder.gep(array, [elem])
